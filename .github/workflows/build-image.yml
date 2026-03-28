@@ -54,8 +54,6 @@ jobs:
           file: ./scripts/Dockerfile.full
           platforms: linux/amd64,linux/arm64
           push: true
-          build-args: |
-            VERSION=${{ steps.version.outputs.tag }}
           tags: |
             ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/memos:${{ steps.version.outputs.tag }}
             ${{ secrets.ACR_REGISTRY }}/${{ secrets.ACR_NAMESPACE }}/memos:latest
