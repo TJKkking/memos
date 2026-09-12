@@ -1,13 +1,15 @@
 import type { Element } from "hast";
 import { useLocation } from "react-router-dom";
-import { useInstance } from "@/contexts/InstanceContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { type MemoFilter, stringifyFilters, useMemoFilterContext } from "@/contexts/MemoFilterContext";
 import useNavigateTo from "@/hooks/useNavigateTo";
 import { colorToHex } from "@/lib/color";
+import { tagStyles } from "@/lib/markdownStyles";
 import { findTagMetadata } from "@/lib/tag";
 import { cn } from "@/lib/utils";
 import { Routes } from "@/router";
 import { useMemoViewContext } from "../MemoView/MemoViewContext";
+import { isMemoResourcePath, withMemoFilter } from "../MemoView/navigation";
 
 interface TagProps extends React.HTMLAttributes<HTMLSpanElement> {
   node?: Element; // AST node from react-markdown
@@ -20,14 +22,15 @@ export const Tag: React.FC<TagProps> = ({ "data-tag": dataTag, children, classNa
   const location = useLocation();
   const navigateTo = useNavigateTo();
   const { getFiltersByFactor, removeFilter, addFilter } = useMemoFilterContext();
-  const { tagsSetting } = useInstance();
+  const { userTagsSetting } = useAuth();
 
   const tag = dataTag || "";
 
-  // Custom color from admin tag metadata. Dynamic hex values must use inline styles
+  // Custom color from user tag metadata. Dynamic hex values must use inline styles
   // because Tailwind can't scan dynamically constructed class names.
   // Text uses a darkened variant (40% color + black) for contrast on light backgrounds.
-  const bgHex = colorToHex(findTagMetadata(tag, tagsSetting)?.backgroundColor);
+  const metadata = userTagsSetting ? findTagMetadata(tag, userTagsSetting) : undefined;
+  const bgHex = colorToHex(metadata?.backgroundColor);
   const tagStyle: React.CSSProperties | undefined = bgHex
     ? {
         borderColor: bgHex,
@@ -41,12 +44,8 @@ export const Tag: React.FC<TagProps> = ({ "data-tag": dataTag, children, classNa
     e.stopPropagation();
 
     // If the tag is clicked in a memo detail page, we should navigate to the memo list page.
-    if (location.pathname.startsWith("/m")) {
-      const pathname = parentPage || Routes.ROOT;
-      const searchParams = new URLSearchParams();
-
-      searchParams.set("filter", stringifyFilters([{ factor: "tagSearch", value: tag }]));
-      navigateTo(`${pathname}?${searchParams.toString()}`);
+    if (isMemoResourcePath(location.pathname)) {
+      navigateTo(withMemoFilter(parentPage || Routes.HOME, stringifyFilters([{ factor: "tagSearch", value: tag }])));
       return;
     }
 
@@ -65,11 +64,7 @@ export const Tag: React.FC<TagProps> = ({ "data-tag": dataTag, children, classNa
 
   return (
     <span
-      className={cn(
-        "inline-flex items-center align-baseline px-1.5 py-0.5 text-[0.9em] leading-none font-normal rounded-full border cursor-pointer transition-opacity hover:opacity-75",
-        !bgHex && "border-primary text-primary bg-primary/15",
-        className,
-      )}
+      className={cn(tagStyles.base, "cursor-pointer transition-opacity hover:opacity-75", !bgHex && tagStyles.defaultColor, className)}
       style={tagStyle}
       data-tag={tag}
       {...props}

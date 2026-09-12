@@ -2,6 +2,8 @@ package v1
 
 import (
 	"bytes"
+	"encoding/binary"
+	"hash/crc32"
 	"image"
 	"image/color"
 	"image/jpeg"
@@ -102,7 +104,7 @@ func TestStripImageExif(t *testing.T) {
 	t.Run("strip JPEG metadata", func(t *testing.T) {
 		t.Parallel()
 
-		strippedData, err := stripImageExif(originalData, "image/jpeg")
+		strippedData, err := stripImageExif(bytes.NewReader(originalData), "image/jpeg")
 		require.NoError(t, err)
 		assert.NotEmpty(t, strippedData)
 
@@ -116,7 +118,7 @@ func TestStripImageExif(t *testing.T) {
 	t.Run("strip JPG metadata (alternate extension)", func(t *testing.T) {
 		t.Parallel()
 
-		strippedData, err := stripImageExif(originalData, "image/jpg")
+		strippedData, err := stripImageExif(bytes.NewReader(originalData), "image/jpg")
 		require.NoError(t, err)
 		assert.NotEmpty(t, strippedData)
 
@@ -134,7 +136,7 @@ func TestStripImageExif(t *testing.T) {
 		err := imaging.Encode(&pngBuf, img, imaging.PNG)
 		require.NoError(t, err)
 
-		strippedData, err := stripImageExif(pngBuf.Bytes(), "image/png")
+		strippedData, err := stripImageExif(bytes.NewReader(pngBuf.Bytes()), "image/png")
 		require.NoError(t, err)
 		assert.NotEmpty(t, strippedData)
 
@@ -149,7 +151,7 @@ func TestStripImageExif(t *testing.T) {
 		t.Parallel()
 
 		// WebP format will be converted to JPEG
-		strippedData, err := stripImageExif(originalData, "image/webp")
+		strippedData, err := stripImageExif(bytes.NewReader(originalData), "image/webp")
 		require.NoError(t, err)
 		assert.NotEmpty(t, strippedData)
 
@@ -162,7 +164,7 @@ func TestStripImageExif(t *testing.T) {
 	t.Run("handle HEIC format by converting to JPEG", func(t *testing.T) {
 		t.Parallel()
 
-		strippedData, err := stripImageExif(originalData, "image/heic")
+		strippedData, err := stripImageExif(bytes.NewReader(originalData), "image/heic")
 		require.NoError(t, err)
 		assert.NotEmpty(t, strippedData)
 
@@ -176,7 +178,7 @@ func TestStripImageExif(t *testing.T) {
 		t.Parallel()
 
 		invalidData := []byte("not an image")
-		_, err := stripImageExif(invalidData, "image/jpeg")
+		_, err := stripImageExif(bytes.NewReader(invalidData), "image/jpeg")
 		assert.Error(t, err)
 		assert.Contains(t, err.Error(), "failed to decode image")
 	})
@@ -185,7 +187,46 @@ func TestStripImageExif(t *testing.T) {
 		t.Parallel()
 
 		emptyData := []byte{}
-		_, err := stripImageExif(emptyData, "image/jpeg")
+		_, err := stripImageExif(bytes.NewReader(emptyData), "image/jpeg")
 		assert.Error(t, err)
 	})
+}
+
+func TestValidateImagePixelCountRejectsOversizedDimensions(t *testing.T) {
+	t.Parallel()
+
+	err := validateImageReaderPixelCount(bytes.NewReader(testPNGHeaderWithDimensions(100_000, 100_000)))
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "image dimensions exceed maximum")
+}
+
+func TestStripImageExifRejectsOversizedDimensionsBeforeDecode(t *testing.T) {
+	t.Parallel()
+
+	_, err := stripImageExif(bytes.NewReader(testPNGHeaderWithDimensions(100_000, 100_000)), "image/png")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "image dimensions exceed maximum")
+}
+
+func testPNGHeaderWithDimensions(width, height uint32) []byte {
+	var buf bytes.Buffer
+	buf.Write([]byte{0x89, 'P', 'N', 'G', '\r', '\n', 0x1a, '\n'})
+
+	ihdr := make([]byte, 13)
+	binary.BigEndian.PutUint32(ihdr[0:4], width)
+	binary.BigEndian.PutUint32(ihdr[4:8], height)
+	ihdr[8] = 8
+	ihdr[9] = 2
+
+	writePNGChunk(&buf, "IHDR", ihdr)
+	writePNGChunk(&buf, "IEND", nil)
+	return buf.Bytes()
+}
+
+func writePNGChunk(buf *bytes.Buffer, chunkType string, data []byte) {
+	_ = binary.Write(buf, binary.BigEndian, uint32(len(data)))
+	buf.WriteString(chunkType)
+	buf.Write(data)
+	crc := crc32.ChecksumIEEE(append([]byte(chunkType), data...))
+	_ = binary.Write(buf, binary.BigEndian, crc)
 }

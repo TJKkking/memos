@@ -1,77 +1,59 @@
 import { memo } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { DEFAULT_CELL_SIZE, SMALL_CELL_SIZE } from "./constants";
-import type { CalendarDayCell, CalendarSize } from "./types";
-import { getCellIntensityClass } from "./utils";
+import { getChipClassName } from "./cellStyles";
+import type { CalendarDayCell } from "./types";
 
 export interface CalendarCellProps {
   day: CalendarDayCell;
   maxCount: number;
   tooltipText: string;
   onClick?: (date: string) => void;
-  size?: CalendarSize;
-  disableTooltip?: boolean;
 }
 
-export const CalendarCell = memo((props: CalendarCellProps) => {
-  const { day, maxCount, tooltipText, onClick, size = "default", disableTooltip = false } = props;
+/** The cell spans its whole column and takes the pointer; the chip inside it carries the fill. */
+const CELL_CLASSES = "group/day flex w-full items-center justify-center select-none";
 
-  const handleClick = () => {
-    if (day.count > 0 && onClick) {
-      onClick(day.date);
-    }
-  };
-
-  const sizeConfig = size === "small" ? SMALL_CELL_SIZE : DEFAULT_CELL_SIZE;
-  const smallExtraClasses = size === "small" ? `${SMALL_CELL_SIZE.dimensions} min-h-0` : "";
-
-  const baseClasses = cn(
-    "aspect-square w-full flex items-center justify-center text-center transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-2 select-none border border-border/10 bg-muted/20",
-    sizeConfig.font,
-    sizeConfig.borderRadius,
-    smallExtraClasses,
-  );
-  const isInteractive = Boolean(onClick && day.count > 0);
-  const ariaLabel = day.isSelected ? `${tooltipText} (selected)` : tooltipText;
+export const CalendarCell = memo(({ day, maxCount, tooltipText, onClick }: CalendarCellProps) => {
+  const isInteractive = Boolean(onClick);
 
   if (!day.isCurrentMonth) {
-    return <div className={cn(baseClasses, "text-muted-foreground/30 bg-transparent border-transparent cursor-default")}>{day.label}</div>;
+    return (
+      <div className={cn(CELL_CLASSES, "cursor-default")}>
+        <span className={getChipClassName(day, maxCount, false)}>{day.label}</span>
+      </div>
+    );
   }
-
-  const intensityClass = getCellIntensityClass(day, maxCount);
-
-  const buttonClasses = cn(
-    baseClasses,
-    intensityClass,
-    day.isToday && "ring-2 ring-primary/30 ring-offset-1 font-semibold z-10",
-    day.isSelected && "ring-2 ring-primary ring-offset-1 font-bold z-10",
-    isInteractive ? "cursor-pointer hover:bg-muted/40 hover:border-border/30" : "cursor-default",
-  );
 
   const button = (
     <button
       type="button"
-      onClick={handleClick}
+      onClick={() => onClick?.(day.date)}
       tabIndex={isInteractive ? 0 : -1}
-      aria-label={ariaLabel}
+      aria-label={day.isSelected ? `${tooltipText} (selected)` : tooltipText}
       aria-current={day.isToday ? "date" : undefined}
       aria-disabled={!isInteractive}
-      className={buttonClasses}
+      className={cn(CELL_CLASSES, "p-0 focus-visible:outline-none", isInteractive ? "cursor-pointer" : "cursor-default")}
     >
-      {day.label}
+      <span className={getChipClassName(day, maxCount, isInteractive)}>
+        {day.label}
+        {day.isToday && (
+          <span
+            aria-hidden="true"
+            className="absolute bottom-[3px] left-1/2 size-[3px] -translate-x-1/2 rounded-full bg-current opacity-70"
+          />
+        )}
+      </span>
     </button>
   );
 
-  const shouldShowTooltip = tooltipText && day.count > 0 && !disableTooltip;
-
-  if (!shouldShowTooltip) {
+  if (day.count === 0) {
     return button;
   }
 
   return (
     <Tooltip>
-      <TooltipTrigger asChild>{button}</TooltipTrigger>
+      <TooltipTrigger render={button} />
       <TooltipContent side="top">
         <p>{tooltipText}</p>
       </TooltipContent>

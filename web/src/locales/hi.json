@@ -23,7 +23,6 @@
     "archive": "संग्रहीत करें",
     "archived": "संग्रहीत",
     "attachments": "संलग्नक",
-    "auto-expand": "स्वतः विस्तार",
     "avatar": "अवतार",
     "basic": "मूल",
     "beta": "बीटा",
@@ -65,6 +64,7 @@
     "last-updated-at": "अंतिम अपडेट",
     "learn-more": "अधिक जानें",
     "link": "लिंक",
+    "manage": "प्रबंधित करें",
     "map": "नक्शा",
     "mark": "चिह्नित",
     "memo": "मेमो",
@@ -95,8 +95,6 @@
     "select": "चयन करें",
     "settings": "सेटिंग्स",
     "share": "साझा करें",
-    "shortcut-filter": "शॉर्टकट फ़िल्टर",
-    "shortcuts": "शॉर्टकट्स",
     "sign-in": "साइन इन करें",
     "sign-in-with": "{{provider}} के साथ साइन इन करें",
     "sign-out": "साइन आउट करें",
@@ -114,7 +112,11 @@
     "username": "उपयोगकर्ता नाम",
     "version": "संस्करण",
     "visibility": "दृश्यता",
+    "views": "दृश्य",
     "yourself": "खुद"
+  },
+  "locale-picker": {
+    "no-language-feedback": "भाषा नहीं मिली? प्रतिक्रिया सबमिट करें"
   },
   "editor": {
     "add-your-comment-here": "अपनी टिप्पणी यहाँ जोड़ें...",
@@ -123,8 +125,36 @@
     "focus-mode": "फोकस मोड",
     "no-changes-detected": "कोई बदलाव नहीं पाया गया",
     "save": "सहेजें",
-    "saving": "सहेज रहा है...",
-    "slash-commands": "कमांड के लिए `/` टाइप करें"
+    "insert-menu": {
+      "add-location": "स्थान जोड़ें",
+      "link-memo": "लिंक मेमो",
+      "upload-file": "फ़ाइल अपलोड करें"
+    },
+    "audio-recorder": {
+      "attachment-label": "ऑडियो रिकॉर्डिंग",
+      "attachment-label-with-time": "ऑडियो रिकॉर्डिंग {{time}}",
+      "discard": "त्यागें",
+      "error": "माइक्रोफ़ोन अनुपलब्ध",
+      "error-description": "इस साइट के लिए माइक्रोफ़ोन एक्सेस की जाँच करने के बाद पुनः प्रयास करें।",
+      "idle-description": "किसी ऑडियो रिकॉर्डिंग को अनुलग्नक के रूप में जोड़ने के लिए रिकॉर्डिंग प्रारंभ करें।",
+      "keep": "रिकॉर्डिंग करते रहें",
+      "pause-recording": "ऑडियो रिकॉर्डिंग रोकें",
+      "play-recording": "ऑडियो रिकॉर्डिंग चलाएं",
+      "ready": "रिकॉर्डिंग तैयार",
+      "ready-description": "क्लिप का पूर्वावलोकन करें, फिर इसे ऑडियो अनुलग्नक के रूप में रखें या हटा दें।",
+      "record-again": "फिर से रिकॉर्ड करें",
+      "recording": "ऑडियो रिकॉर्डिंग",
+      "recording-description": "एक त्वरित ऑडियो अनुलग्नक कैप्चर करें. वर्तमान लंबाई: {{duration}}",
+      "requesting": "पहुंच का अनुरोध किया जा रहा है...",
+      "requesting-permission": "माइक्रोफ़ोन पहुंच का अनुरोध किया जा रहा है",
+      "requesting-permission-description": "रिकॉर्डिंग शुरू करने के लिए अपने ब्राउज़र में माइक्रोफ़ोन एक्सेस की अनुमति दें।",
+      "start": "रिकॉर्डिंग प्रारंभ करें",
+      "stop": "रिकॉर्डिंग बंद करो",
+      "title": "ऑडियो रिकॉर्डर",
+      "trigger": "ऑडियो रिकॉर्ड करें",
+      "unsupported": "ऑडियो रिकॉर्डिंग असमर्थित",
+      "unsupported-description": "यह ब्राउज़र मेमो कंपोज़र से ऑडियो रिकॉर्ड नहीं कर सकता."
+    }
   },
   "inbox": {
     "failed-to-load": "इनबॉक्स आइटम लोड करने में विफल",
@@ -159,8 +189,12 @@
     "filters": {
       "has-code": "कोड है",
       "has-link": "लिंक है",
-      "has-task-list": "टास्क लिस्ट है"
+      "has-location": "स्थान है",
+      "has-task-list": "टास्क लिस्ट है",
+      "label": "फिल्टर"
     },
+    "compact-mode": "कॉम्पैक्ट मोड",
+    "link-preview": "लिंक पूर्वावलोकन",
     "links": "लिंक",
     "load-more": "और लोड करें",
     "no-archived-memos": "कोई संग्रहीत मेमो नहीं।",
@@ -176,6 +210,32 @@
       "private": "निजी",
       "protected": "सदस्य",
       "public": "सार्वजनिक"
+    },
+    "outline": "रूपरेखा",
+    "share": {
+      "active-links": "सक्रिय शेयर लिंक",
+      "copied": "नकल की गई!",
+      "copy": "लिंक कॉपी करें",
+      "create-failed": "शेयर लिंक बनाने में विफल",
+      "create-link": "नया लिंक बनाएं",
+      "creating": "बनाया जा रहा है...",
+      "expiry-1-day": "1 दिन",
+      "expiry-30-days": "30 दिन",
+      "expiry-7-days": "7 दिन",
+      "expiry-label": "समाप्त हो रहा है",
+      "expiry-never": "कभी नहीं",
+      "expires-on": "{{date}} को समाप्त हो रहा है",
+      "invalid-link": "यह लिंक अमान्य है या समाप्त हो चुका है.",
+      "never-expires": "कभी समाप्त नहीं होता",
+      "no-links": "अभी तक कोई लिंक साझा नहीं किया गया है. नीचे एक बनाएं.",
+      "open-panel": "शेयर लिंक प्रबंधित करें",
+      "revoke": "निरस्त करें",
+      "revoke-failed": "लिंक निरस्त करने में विफल",
+      "revoked": "लिंक साझा करना निरस्त कर दिया गया",
+      "section-label": "साझा करना",
+      "share": "साझा करें",
+      "shared-by": "{{creator}} द्वारा साझा किया गया",
+      "title": "इस ज्ञापन को साझा करें"
     }
   },
   "message": {
@@ -196,8 +256,7 @@
     "restored-successfully": "सफलतापूर्वक पुनर्स्थापित किया गया",
     "succeed-copy-content": "सामग्री सफलतापूर्वक कॉपी की गई।",
     "succeed-copy-link": "लिंक सफलतापूर्वक कॉपी किया गया।",
-    "update-succeed": "अपडेट सफल हुआ",
-    "user-not-found": "उपयोगकर्ता नहीं मिला"
+    "update-succeed": "अपडेट सफल हुआ"
   },
   "reference": {
     "add-references": "संदर्भ जोड़ें",
@@ -261,7 +320,8 @@
       "restore-success": "{{username}} सफलतापूर्वक पुनर्स्थापित किया गया",
       "user": "उपयोगकर्ता",
       "label": "सदस्य",
-      "list-title": "सदस्य सूची"
+      "list-title": "सदस्य सूची",
+      "no-members-found": "कोई सदस्य नहीं मिला"
     },
     "my-account": {
       "label": "मेरा खाता"
@@ -272,9 +332,9 @@
       "theme": "थीम",
       "label": "प्राथमिकता"
     },
-    "shortcut": {
-      "delete-confirm": "क्या आप वाकई शॉर्टकट `{{title}}` हटाना चाहते हैं?",
-      "delete-success": "शॉर्टकट `{{title}}` सफलतापूर्वक हटाया गया"
+    "memo-view": {
+      "delete-confirm": "क्या आप वाकई दृश्य `{{title}}` हटाना चाहते हैं?",
+      "delete-success": "दृश्य `{{title}}` सफलतापूर्वक हटाया गया"
     },
     "sso": {
       "authorization-endpoint": "प्राधिकरण एंडपॉइंट",
@@ -316,7 +376,6 @@
       "path": "संग्रहण पथ",
       "path-description": "आप स्थानीय संग्रहण की वही डायनामिक वेरिएबल्स उपयोग कर सकते हैं, जैसे {filename}",
       "path-placeholder": "कस्टम/पथ",
-      "presign-placeholder": "प्री-साइन URL, वैकल्पिक",
       "region": "क्षेत्र",
       "region-placeholder": "क्षेत्र का नाम",
       "s3-compatible-url": "S3 संगत URL",
@@ -383,7 +442,8 @@
       },
       "description": "आपके खाते के सभी एक्सेस टोकन की सूची।",
       "title": "एक्सेस टोकन",
-      "token": "टोकन"
+      "token": "टोकन",
+      "no-tokens-found": "कोई एक्सेस टोकन नहीं मिला"
     },
     "account": {
       "change-password": "पासवर्ड बदलें",
@@ -415,7 +475,8 @@
       "enable-memo-location": "मेमो स्थान सक्षम करें",
       "reactions": "प्रतिक्रियाएँ",
       "title": "मेमो संबंधित सेटिंग्स",
-      "label": "मेमो"
+      "label": "मेमो",
+      "reactions-required": "प्रतिक्रिया सूची खाली नहीं होनी चाहिए"
     },
     "webhook": {
       "create-dialog": {
@@ -436,6 +497,20 @@
       "title": "Webhooks",
       "url": "URL",
       "label": "Webhooks"
+    },
+    "tags": {
+      "label": "टैग",
+      "title": "मेटाडेटा टैग करें",
+      "description": "इंस्टेंस-वाइड टैग के लिए वैकल्पिक प्रदर्शन रंग निर्दिष्ट करें, या मेल खाने वाली मेमो सामग्री को धुंधला करें। टैग नामों को एंकर्ड रेगेक्स पैटर्न के रूप में माना जाता है।",
+      "background-color": "पृष्ठभूमि का रंग",
+      "blur-content": "धुंधली सामग्री",
+      "no-tags-configured": "कोई टैग मेटाडेटा कॉन्फ़िगर नहीं किया गया.",
+      "tag-name": "टैग नाम",
+      "tag-name-placeholder": "जैसे __कार्य_नमूना__ या __परियोजना_REGEX__",
+      "tag-already-exists": "टैग पहले से मौजूद है.",
+      "tag-pattern-hint": "टैग नाम या रेगेक्स पैटर्न (जैसे project/.* सभी project/ टैग से मेल खाता है)",
+      "invalid-regex": "अमान्य या असुरक्षित रेगेक्स पैटर्न.",
+      "using-default-color": "डिफ़ॉल्ट रंग का उपयोग करना."
     }
   },
   "tag": {
@@ -461,5 +536,10 @@
     "select-visibility": "दृश्यता चुनें",
     "tags": "टैग",
     "upload-attachment": "संलग्नक अपलोड करें"
+  },
+  "live-update": {
+    "connected": "लाइव अपडेट सक्रिय",
+    "connecting": "लाइव अपडेट से कनेक्ट हो रहा है...",
+    "disconnected": "लाइव अपडेट उपलब्ध नहीं है"
   }
 }

@@ -23,7 +23,6 @@
     "archive": "Arquivar",
     "archived": "Arquivo",
     "attachments": "Anexos",
-    "auto-expand": "Expandir automaticamente",
     "avatar": "Avatar",
     "basic": "Básico",
     "beta": "Beta",
@@ -65,6 +64,7 @@
     "last-updated-at": "Atualizado em",
     "learn-more": "Saiba mais",
     "link": "Link",
+    "manage": "Gerenciar",
     "map": "Mapa",
     "mark": "Vincular",
     "memo": "Memo",
@@ -95,8 +95,6 @@
     "select": "Selecionar",
     "settings": "Ajustes",
     "share": "Compartilhar",
-    "shortcut-filter": "Filtro de atalhos",
-    "shortcuts": "Atalhos",
     "sign-in": "Entrar",
     "sign-in-with": "Entrar com {{provider}}",
     "sign-out": "Sair",
@@ -114,7 +112,11 @@
     "username": "Nome de usuário",
     "version": "Versão",
     "visibility": "Visibilidade",
+    "views": "Vistas",
     "yourself": "Você mesmo"
+  },
+  "locale-picker": {
+    "no-language-feedback": "Idioma não encontrado? Enviar comentários"
   },
   "editor": {
     "add-your-comment-here": "Adicione seu comentário aqui…",
@@ -123,8 +125,36 @@
     "focus-mode": "Modo Foco",
     "no-changes-detected": "Nenhuma alteração detectada",
     "save": "Salvar",
-    "saving": "Salvando…",
-    "slash-commands": "Digite `/` para comandos"
+    "insert-menu": {
+      "add-location": "Adicionar local",
+      "link-memo": "Vincular memorando",
+      "upload-file": "Carregar arquivo"
+    },
+    "audio-recorder": {
+      "attachment-label": "Gravação de áudio",
+      "attachment-label-with-time": "Gravação de áudio {{time}}",
+      "discard": "Descartar",
+      "error": "Microfone indisponível",
+      "error-description": "Tente novamente depois de verificar o acesso ao microfone deste site.",
+      "idle-description": "Comece a gravar para adicionar uma gravação de áudio como anexo.",
+      "keep": "Continue gravando",
+      "pause-recording": "Pausar gravação de áudio",
+      "play-recording": "Reproduzir gravação de áudio",
+      "ready": "Gravação pronta",
+      "ready-description": "Visualize o clipe e mantenha-o como anexo de áudio ou descarte-o.",
+      "record-again": "Grave novamente",
+      "recording": "Gravando áudio",
+      "recording-description": "Capture um anexo de áudio rápido. Duração atual: {{duration}}",
+      "requesting": "Solicitando acesso...",
+      "requesting-permission": "Solicitando acesso ao microfone",
+      "requesting-permission-description": "Permita o acesso ao microfone no seu navegador para iniciar a gravação.",
+      "start": "Comece a gravar",
+      "stop": "Pare de gravar",
+      "title": "Gravador de áudio",
+      "trigger": "Gravar áudio",
+      "unsupported": "Gravação de áudio não suportada",
+      "unsupported-description": "Este navegador não pode gravar áudio do compositor de memorando."
+    }
   },
   "inbox": {
     "failed-to-load": "Falha ao carregar item da caixa de entrada",
@@ -159,8 +189,12 @@
     "filters": {
       "has-code": "temCódigo",
       "has-link": "temLink",
-      "has-task-list": "temListaDeTarefas"
+      "has-location": "tem localização",
+      "has-task-list": "temListaDeTarefas",
+      "label": "Filtros"
     },
+    "compact-mode": "Modo compacto",
+    "link-preview": "Pré-visualização de links",
     "links": "Links",
     "load-more": "Carregar mais",
     "no-archived-memos": "Nenhum memo arquivado.",
@@ -176,6 +210,32 @@
       "private": "Privado",
       "protected": "Protegido",
       "public": "Público"
+    },
+    "outline": "Esboço",
+    "share": {
+      "active-links": "Links de compartilhamento ativos",
+      "copied": "Copiado!",
+      "copy": "Copiar link",
+      "create-failed": "Falha ao criar link de compartilhamento",
+      "create-link": "Criar novo link",
+      "creating": "Criando…",
+      "expiry-1-day": "1 dia",
+      "expiry-30-days": "30 dias",
+      "expiry-7-days": "7 dias",
+      "expiry-label": "Expira",
+      "expiry-never": "Nunca",
+      "expires-on": "Expira em {{date}}",
+      "invalid-link": "Este link é inválido ou expirou.",
+      "never-expires": "Nunca expira",
+      "no-links": "Ainda não há links de compartilhamento. Crie um abaixo.",
+      "open-panel": "Gerenciar links de compartilhamento",
+      "revoke": "Revogar",
+      "revoke-failed": "Falha ao revogar link",
+      "revoked": "Link de compartilhamento revogado",
+      "section-label": "Compartilhando",
+      "share": "Compartilhar",
+      "shared-by": "Compartilhado por {{creator}}",
+      "title": "Compartilhe este memorando"
     }
   },
   "message": {
@@ -196,8 +256,7 @@
     "restored-successfully": "Restaurado com êxito",
     "succeed-copy-content": "Conteúdo copiado com êxito.",
     "succeed-copy-link": "Link copiado com êxito.",
-    "update-succeed": "Atualizado com êxito",
-    "user-not-found": "Usuário não encontrado"
+    "update-succeed": "Atualizado com êxito"
   },
   "reference": {
     "add-references": "Adicionar referências",
@@ -261,7 +320,8 @@
       "restore-success": "{{username}} restaurado com êxito",
       "user": "Usuário",
       "label": "Membro",
-      "list-title": "Lista de membros"
+      "list-title": "Lista de membros",
+      "no-members-found": "Nenhum membro encontrado"
     },
     "my-account": {
       "label": "Minha conta"
@@ -272,9 +332,9 @@
       "theme": "Tema",
       "label": "Preferências"
     },
-    "shortcut": {
-      "delete-confirm": "Tem certeza de que deseja deletar o atalho `{{title}}`?",
-      "delete-success": "Atalho `{{title}}` deletado com êxito"
+    "memo-view": {
+      "delete-confirm": "Tem certeza de que deseja excluir a vista `{{title}}`?",
+      "delete-success": "Vista `{{title}}` excluída com sucesso"
     },
     "sso": {
       "authorization-endpoint": "Endpoint de autenticação",
@@ -316,7 +376,6 @@
       "path": "Caminho do armazenamento",
       "path-description": "Você pode usar as mesmas variáveis dinâmicas do armazenamento local, como {filename}",
       "path-placeholder": "caminho",
-      "presign-placeholder": "URL pré-assinado, opcional",
       "region": "Região",
       "region-placeholder": "Nome da região",
       "s3-compatible-url": "URL compatível com S3",
@@ -383,7 +442,8 @@
       },
       "description": "Uma lista de todos os tokens de acesso de sua conta.",
       "title": "Tokens de acesso",
-      "token": "Token"
+      "token": "Token",
+      "no-tokens-found": "Nenhum token de acesso encontrado"
     },
     "account": {
       "change-password": "Alterar senha",
@@ -415,7 +475,8 @@
       "enable-memo-location": "Marcador de localização",
       "reactions": "Reações",
       "title": "Ajustes relacionados aos memos",
-      "label": "Memo"
+      "label": "Memo",
+      "reactions-required": "A lista de reações não deve estar vazia"
     },
     "webhook": {
       "create-dialog": {
@@ -436,6 +497,20 @@
       "title": "Webhooks",
       "url": "URL",
       "label": "Webhooks"
+    },
+    "tags": {
+      "label": "Etiquetas",
+      "title": "Metadados de tags",
+      "description": "Atribua cores de exibição opcionais a tags em toda a instância ou desfoque o conteúdo do memorando correspondente. Os nomes das tags são tratados como padrões regex ancorados.",
+      "background-color": "Cor de fundo",
+      "blur-content": "Desfocar conteúdo",
+      "no-tags-configured": "Nenhum metadado de tag configurado.",
+      "tag-name": "Nome da etiqueta",
+      "tag-name-placeholder": "por exemplo work ou project/.*",
+      "tag-already-exists": "A etiqueta já existe.",
+      "tag-pattern-hint": "Nome da tag ou padrão regex (por exemplo, project/.* corresponde a todas as tags project/)",
+      "invalid-regex": "Padrão regex inválido ou inseguro.",
+      "using-default-color": "Usando a cor padrão."
     }
   },
   "tag": {
@@ -461,5 +536,10 @@
     "select-visibility": "Visibilidade",
     "tags": "Tags",
     "upload-attachment": "Carregar Anexo(s)"
+  },
+  "live-update": {
+    "connected": "Atualizações ao vivo ativas",
+    "connecting": "Conectando-se às atualizações ao vivo...",
+    "disconnected": "Atualizações ao vivo indisponíveis"
   }
 }

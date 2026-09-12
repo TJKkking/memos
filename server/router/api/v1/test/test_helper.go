@@ -2,10 +2,12 @@ package test
 
 import (
 	"context"
+	"strings"
 	"testing"
 
+	"github.com/usememos/memos/internal/markdown"
 	"github.com/usememos/memos/internal/profile"
-	"github.com/usememos/memos/plugin/markdown"
+	storepb "github.com/usememos/memos/proto/gen/store"
 	"github.com/usememos/memos/server/auth"
 	apiv1 "github.com/usememos/memos/server/router/api/v1"
 	"github.com/usememos/memos/store"
@@ -26,22 +28,32 @@ func NewTestService(t *testing.T) *TestService {
 
 	// Create a test store with SQLite
 	testStore := teststore.NewTestingStore(ctx, t)
+	if _, err := testStore.UpsertInstanceSetting(ctx, &storepb.InstanceSetting{
+		Key: storepb.InstanceSettingKey_ACCESS,
+		Value: &storepb.InstanceSetting_AccessSetting{AccessSetting: &storepb.InstanceAccessSetting{
+			AccessMode: storepb.InstanceAccessMode_INSTANCE_ACCESS_MODE_PUBLIC,
+		}},
+	}); err != nil {
+		t.Fatalf("failed to configure public access for API test service: %v", err)
+	}
 
-	// Create a test profile with a temp directory for file storage,
-	// so tests that create attachments don't leave artifacts in the source tree.
+	// Align the profile data directory with the test store so attachment files and
+	// derived caches resolve against the same location as DeleteAttachmentStorage.
 	testProfile := &profile.Profile{
 		Demo:        true,
 		Version:     "test-1.0.0",
+		Commit:      "test-commit",
 		InstanceURL: "http://localhost:8080",
 		Driver:      "sqlite",
 		DSN:         ":memory:",
-		Data:        t.TempDir(),
+		Data:        testStore.GetDataDir(),
 	}
 
 	// Create APIV1Service with nil grpcServer since we're testing direct calls
 	secret := "test-secret"
 	markdownService := markdown.NewService(
 		markdown.WithTagExtension(),
+		markdown.WithMentionExtension(),
 	)
 	service := &apiv1.APIV1Service{
 		Secret:          secret,
@@ -59,6 +71,17 @@ func NewTestService(t *testing.T) *TestService {
 	}
 }
 
+// SetInstanceAccessMode updates the instance access policy for a test.
+func (ts *TestService) SetInstanceAccessMode(ctx context.Context, mode storepb.InstanceAccessMode) error {
+	_, err := ts.Store.UpsertInstanceSetting(ctx, &storepb.InstanceSetting{
+		Key: storepb.InstanceSettingKey_ACCESS,
+		Value: &storepb.InstanceSetting_AccessSetting{AccessSetting: &storepb.InstanceAccessSetting{
+			AccessMode: mode,
+		}},
+	})
+	return err
+}
+
 // Cleanup closes resources after test.
 func (ts *TestService) Cleanup() {
 	ts.Store.Close()
@@ -69,7 +92,7 @@ func (ts *TestService) CreateHostUser(ctx context.Context, username string) (*st
 	return ts.Store.CreateUser(ctx, &store.User{
 		Username: username,
 		Role:     store.RoleAdmin,
-		Email:    username + "@example.com",
+		Email:    testEmailForUsername(username),
 	})
 }
 
@@ -78,8 +101,29 @@ func (ts *TestService) CreateRegularUser(ctx context.Context, username string) (
 	return ts.Store.CreateUser(ctx, &store.User{
 		Username: username,
 		Role:     store.RoleUser,
-		Email:    username + "@example.com",
+		Email:    testEmailForUsername(username),
 	})
+}
+
+// testEmailForUsername derives a distinct, valid address for a fixture user.
+// Legacy usernames may themselves look like addresses, so the '@' is folded
+// into the local part rather than producing an invalid two-'@' string.
+func testEmailForUsername(username string) string {
+	return strings.ReplaceAll(username, "@", "-at-") + "@example.com"
+}
+
+// InviteAndAcceptSpaceMember is a test fixture helper that exercises the invitation
+// lifecycle instead of bypassing invitee consent.
+func (ts *TestService) InviteAndAcceptSpaceMember(ctx context.Context, create *store.SpaceMember, actorUserID int32) (*store.SpaceMember, error) {
+	invitation, err := ts.Store.CreateSpaceInvitation(ctx, &store.SpaceInvitation{
+		SpaceID: create.SpaceID,
+		UserID:  create.UserID,
+		Role:    create.Role,
+	}, actorUserID)
+	if err != nil {
+		return nil, err
+	}
+	return ts.Store.AcceptSpaceInvitation(ctx, &store.AcceptSpaceInvitation{SpaceID: invitation.SpaceID, UserID: invitation.UserID}, invitation.UserID)
 }
 
 // CreateUserContext creates a context with the given user's ID for authentication.

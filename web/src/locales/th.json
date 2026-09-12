@@ -23,7 +23,6 @@
     "archive": "เก็บถาวร",
     "archived": "เก็บถาวรแล้ว",
     "attachments": "ไฟล์แนบ",
-    "auto-expand": "ขยายอัตโนมัติ",
     "avatar": "สัญลักษณ์",
     "basic": "ทั่วไป",
     "beta": "รุ่นเบต้า",
@@ -65,6 +64,7 @@
     "last-updated-at": "อัปเดตล่าสุดเมื่อ",
     "learn-more": "เรียนรู้เพิ่มเติม",
     "link": "ลิงก์",
+    "manage": "จัดการ",
     "map": "แผนที่",
     "mark": "ทำเครื่องหมาย",
     "memo": "บันทึกช่วยจำ",
@@ -95,8 +95,6 @@
     "select": "เลือก",
     "settings": "ตั้งค่า",
     "share": "แชร์",
-    "shortcut-filter": "ตัวกรองทางลัด",
-    "shortcuts": "ทางลัด",
     "sign-in": "เข้าระบบ",
     "sign-in-with": "เข้าระบบโดย {{provider}}",
     "sign-out": "ออกจากระบบ",
@@ -114,7 +112,11 @@
     "username": "ชื่อผู้ใช้",
     "version": "เวอร์ชั่น",
     "visibility": "การมองเห็น",
+    "views": "มุมมอง",
     "yourself": "ตัวคุณ"
+  },
+  "locale-picker": {
+    "no-language-feedback": "ไม่พบภาษา? ส่งข้อเสนอแนะ"
   },
   "editor": {
     "add-your-comment-here": "เพิ่มความคิดเห็นของคุณที่นี่...",
@@ -123,8 +125,36 @@
     "focus-mode": "โหมดโฟกัส",
     "no-changes-detected": "ไม่มีการเปลี่ยนแปลง",
     "save": "บันทึก",
-    "saving": "กำลังบันทึก...",
-    "slash-commands": "พิมพ์ `/` สำหรับคำสั่ง"
+    "insert-menu": {
+      "add-location": "เพิ่มสถานที่",
+      "link-memo": "บันทึกการเชื่อมโยง",
+      "upload-file": "อัพโหลดไฟล์"
+    },
+    "audio-recorder": {
+      "attachment-label": "การบันทึกเสียง",
+      "attachment-label-with-time": "บันทึกเสียง {{time}}",
+      "discard": "ทิ้ง",
+      "error": "ไมโครโฟนไม่พร้อมใช้งาน",
+      "error-description": "ลองอีกครั้งหลังจากตรวจสอบการเข้าถึงไมโครโฟนสำหรับไซต์นี้",
+      "idle-description": "เริ่มการบันทึกเพื่อเพิ่มการบันทึกเสียงเป็นไฟล์แนบ",
+      "keep": "บันทึกต่อ",
+      "pause-recording": "หยุดกา���บันทึกเสียงชั่วคราว",
+      "play-recording": "เล่นการบันทึกเสียง",
+      "ready": "พร้อมบันทึกแล้ว",
+      "ready-description": "ดูตัวอย่างคลิป จากนั้นเก็บเป็นไฟล์แนบเสียงหรือทิ้งไป",
+      "record-again": "บันทึกอีกครั้ง",
+      "recording": "บันทึกเสียง",
+      "recording-description": "บันทึกไฟล์แนบเสียงอย่างรวดเร็ว ความยาวปัจจุบัน: {{duration}}",
+      "requesting": "กำลังร้องขอการเข้าถึง...",
+      "requesting-permission": "กำลังขอเข้าถึงไมโครโฟน",
+      "requesting-permission-description": "อนุญาตให้เข้าถึงไมโครโฟน��นเบราว์เซอร์ของคุณเพื่อเริ่มการบันทึก",
+      "start": "เริ่มการบันทึก",
+      "stop": "หยุดการบันทึก",
+      "title": "เครื่องบันทึกเสียง",
+      "trigger": "บันทึกเสียง",
+      "unsupported": "ไม่รองรับการบันทึ��เสียง",
+      "unsupported-description": "เบราว์เซอร์นี้ไม่สามารถบันทึกเสียงจากผู้แต่งบันทึกได้"
+    }
   },
   "inbox": {
     "failed-to-load": "ไม่สามารถโหลดรายการกล่องจดหมายได้",
@@ -159,8 +189,12 @@
     "filters": {
       "has-code": "มีโค้ด",
       "has-link": "มีลิงก์",
-      "has-task-list": "มีรายการที่ต้องทำ"
+      "has-location": "มีตำแหน่ง",
+      "has-task-list": "มีรายการที่ต้องทำ",
+      "label": "ตัวกรอง"
     },
+    "compact-mode": "โหมดกะทัดรัด",
+    "link-preview": "ตัวอย่างลิงก์",
     "links": "ลิงก์",
     "load-more": "โหลดเพิ่มเติม",
     "no-archived-memos": "ไม่มีบันทึกช่วยจำที่ถูกเก็บถาวร",
@@ -176,6 +210,32 @@
       "private": "ส่วนตัว",
       "protected": "พื้นที่ทำงาน",
       "public": "สาธารณะ"
+    },
+    "outline": "โครงร่าง",
+    "share": {
+      "active-links": "ลิงก์แชร์ที่ใช้งานอยู่",
+      "copied": "คัดลอก!",
+      "copy": "คัดลอกลิงก์",
+      "create-failed": "ไม่สามารถสร้างลิงก์แชร์ได้",
+      "create-link": "สร้างลิงค์ใหม่",
+      "creating": "กำลังสร้าง...",
+      "expiry-1-day": "1 วัน",
+      "expiry-30-days": "30 วัน",
+      "expiry-7-days": "7 วัน",
+      "expiry-label": "หมดอายุ",
+      "expiry-never": "ไม่เคย",
+      "expires-on": "หมดอายุ {{date}}",
+      "invalid-link": "ลิงก์นี้ไม่ถูกต้องหรือหมดอายุแล้ว",
+      "never-expires": "ไม่มีวันหมดอายุ",
+      "no-links": "ยังไม่มีลิงก์แชร์ สร้างหนึ่งรายการด้านล่าง",
+      "open-panel": "จัดการลิงก์แชร์",
+      "revoke": "เพิกถอน",
+      "revoke-failed": "ไม่สามารถเพิกถอนลิงก์ได้",
+      "revoked": "เพิกถอนลิงก์แชร์แล้ว",
+      "section-label": "การแบ่งปัน",
+      "share": "แบ่งปัน",
+      "shared-by": "แบ่งปันโดย {{creator}}",
+      "title": "แบ่งปันบันทึกนี้"
     }
   },
   "message": {
@@ -196,8 +256,7 @@
     "restored-successfully": "กู้คืนเรียบร้อยแล้ว",
     "succeed-copy-content": "คัดลอกเนื้อหาเรียบร้อยแล้ว",
     "succeed-copy-link": "คัดลอกลิงก์เรียบร้อยแล้ว",
-    "update-succeed": "อัปเดตเรียบร้อยแล้ว",
-    "user-not-found": "ไม่พบผู้ใช้งาน"
+    "update-succeed": "อัปเดตเรียบร้อยแล้ว"
   },
   "reference": {
     "add-references": "เพิ่มข้อมูลอ้างอิง",
@@ -261,7 +320,8 @@
       "restore-success": "{{username}} กู้คืนเรียบร้อยแล้ว",
       "user": "ผู้ใช้",
       "label": "สมาชิก",
-      "list-title": "รายชื่อสมาชิก"
+      "list-title": "รายชื่อสมาชิก",
+      "no-members-found": "ไม่พบสมาชิก"
     },
     "my-account": {
       "label": "บัญชีผู้ใช้ของฉัน"
@@ -272,9 +332,9 @@
       "theme": "ธีม",
       "label": "การตั้งค่า"
     },
-    "shortcut": {
-      "delete-confirm": "คุณแน่ใจหรือไม่ที่จะลบทางลัด `{{title}}`?",
-      "delete-success": "ทางลัด `{{title}}` ลบเรียบร้อยแล้ว"
+    "memo-view": {
+      "delete-confirm": "คุณแน่ใจหรือไม่ว่าต้องการลบมุมมอง `{{title}}`?",
+      "delete-success": "ลบมุมมอง `{{title}}` เรียบร้อยแล้ว"
     },
     "sso": {
       "authorization-endpoint": "Endpoint การอนุญาต",
@@ -316,7 +376,6 @@
       "path": "ที่จัดเก็บ",
       "path-description": "คุณสามารถใช้ตัวแปรไดนามิกเดียวกันจากที่จัดเก็บในตัวเครื่อง เช่น {filename}",
       "path-placeholder": "กำหนดเอง/เส้นทาง",
-      "presign-placeholder": "Pre-sign URL ไม่บังคับ",
       "region": "ภูมิภาค",
       "region-placeholder": "ชื่อภูมิภาค",
       "s3-compatible-url": "URL ที่เข้ากันได้กับ S3",
@@ -383,7 +442,8 @@
       },
       "description": "รายการโทเค็นการเข้าถึงทั้งหมดสำหรับบัญชีของคุณ",
       "title": "โทเค็นการเข้าถึง",
-      "token": "โทเค็น"
+      "token": "โทเค็น",
+      "no-tokens-found": "ไม่พบโทเค็นการเข้าถึง"
     },
     "account": {
       "change-password": "เปลี่ยนรหัสผ่าน",
@@ -415,7 +475,8 @@
       "enable-memo-location": "เปิดใช้งานตำแหน่งในบันทึก",
       "reactions": "ปฏิกิริยา",
       "title": "การตั้งค่าที่เกี่ยวข้องกับบันทึก",
-      "label": "บันทึก"
+      "label": "บันทึก",
+      "reactions-required": "รายการความรู้สึกต้องไม่ว่��งเปล่า"
     },
     "webhook": {
       "create-dialog": {
@@ -436,6 +497,20 @@
       "title": "Webhook",
       "url": "URL",
       "label": "Webhook"
+    },
+    "tags": {
+      "label": "แท็ก",
+      "title": "แท็กข้อมูลเมตา",
+      "description": "กำหนดสีที่แสดงเพิ่มเติมให้กับแท็กทั่วทั้งอินสแตนซ์ หรือเบลอเนื้อหาบันทึกที่ตรงกัน ชื่อแท็กจะถือเป็นรูปแบบ regex แบบ Anchored",
+      "background-color": "สีพื้นหลัง",
+      "blur-content": "เบลอเนื้อหา",
+      "no-tags-configured": "ไม่มีการกำหนดค่าข้อมูลเมตาของแท็ก",
+      "tag-name": "ชื่อแท็ก",
+      "tag-name-placeholder": "เช่น work หรือ project/.*",
+      "tag-already-exists": "มีแท็กอยู่แล้ว",
+      "tag-pattern-hint": "ชื่อแท็กหรือรูปแบบ regex (เช่น project/.* ตรงกับแท็ก project/ ทั้งหมด)",
+      "invalid-regex": "รูปแบบ regex ไม่ถูกต้องหรือไม่ปลอดภัย",
+      "using-default-color": "การใช้สีเริ่มต้น"
     }
   },
   "tag": {
@@ -461,5 +536,10 @@
     "select-visibility": "เลือกการมองเห็น",
     "tags": "ป้ายกำกับ",
     "upload-attachment": "อัปโหลดไฟล์แนบ"
+  },
+  "live-update": {
+    "connected": "การอัปเดตสดเปิดใช้งานอยู่",
+    "connecting": "กำลังเชื่อมต่อกับการอัปเดตสด...",
+    "disconnected": "การอัปเดตสดไม่พร้อมใช้งาน"
   }
 }

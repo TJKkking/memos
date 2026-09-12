@@ -2,8 +2,6 @@ package v1
 
 import (
 	"context"
-	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 
@@ -16,8 +14,7 @@ func BuildUserName(username string) string {
 	return UserNamePrefix + username
 }
 
-// ExtractUsernameFromName extracts the username token from a user resource name.
-func ExtractUsernameFromName(name string) (string, error) {
+func parseUsernameFromName(name string) (string, error) {
 	tokens, err := GetNameParentTokens(name, UserNamePrefix)
 	if err != nil {
 		return "", err
@@ -26,18 +23,19 @@ func ExtractUsernameFromName(name string) (string, error) {
 	if username == "" {
 		return "", errors.Errorf("invalid user name %q", name)
 	}
-	if _, err := strconv.ParseInt(username, 10, 32); err == nil {
-		return "", errors.Errorf("invalid username %q", username)
-	}
-	if username != strings.ToLower(username) || !base.UIDMatcher.MatchString(username) {
-		return "", errors.Errorf("invalid username %q", username)
-	}
 	return username, nil
+}
+
+func validateWritableUsername(username string) error {
+	if !base.IsValidUsername(username) {
+		return errors.Errorf("invalid username %q", username)
+	}
+	return nil
 }
 
 // ResolveUserByName resolves a username-based user resource name to a store user.
 func ResolveUserByName(ctx context.Context, stores *store.Store, name string) (*store.User, error) {
-	username, err := ExtractUsernameFromName(name)
+	username, err := parseUsernameFromName(name)
 	if err != nil {
 		return nil, err
 	}

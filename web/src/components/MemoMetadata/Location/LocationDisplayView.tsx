@@ -1,48 +1,42 @@
-import { LatLng } from "leaflet";
 import { MapPinIcon } from "lucide-react";
 import { useState } from "react";
-import { LocationPicker } from "@/components/map";
+import { METADATA_ROW_CLASSES, METADATA_ROW_TEXT_CLASSES, MetadataRowIconSlot } from "@/components/MemoMetadata/MetadataSection";
+import { LazyLocationPicker } from "@/components/map/LazyLocationPicker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import type { Location } from "@/types/proto/api/v1/memo_service_pb";
+import { getLocationCoordinatesText, getLocationDisplayText } from "./locationHelpers";
 
 interface LocationDisplayViewProps {
   location?: Location;
-  className?: string;
 }
 
-const LocationDisplayView = ({ location, className }: LocationDisplayViewProps) => {
+/** The memo's location as a metadata row; the row fills while its map is open. */
+const LocationDisplayView = ({ location }: LocationDisplayViewProps) => {
   const [popoverOpen, setPopoverOpen] = useState<boolean>(false);
 
   if (!location) {
     return null;
   }
 
-  const displayText = location.placeholder || `Position: [${location.latitude}, ${location.longitude}]`;
+  const displayText = getLocationDisplayText(location);
 
   return (
     <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-      <PopoverTrigger asChild>
-        <div
-          className={cn(
-            "w-full flex flex-row gap-2 cursor-pointer",
-            "relative inline-flex items-center gap-1.5 px-2 h-7 rounded-md border border-border bg-muted/20 hover:bg-accent/20 text-muted-foreground hover:text-foreground text-xs transition-colors",
-            className,
-          )}
-          onClick={() => setPopoverOpen(true)}
-        >
-          <span className="shrink-0 text-muted-foreground">
-            <MapPinIcon className="w-3.5 h-3.5" />
-          </span>
-          <span className="text-nowrap opacity-80">
-            [{location.latitude.toFixed(2)}°, {location.longitude.toFixed(2)}°]
-          </span>
-          <span className="text-nowrap truncate">{displayText}</span>
-        </div>
+      <PopoverTrigger render={<button type="button" title={displayText} className={METADATA_ROW_CLASSES} />}>
+        <MetadataRowIconSlot icon={MapPinIcon} />
+        <span className={METADATA_ROW_TEXT_CLASSES}>{displayText}</span>
       </PopoverTrigger>
-      <PopoverContent align="start">
-        <div className="min-w-80 sm:w-lg flex flex-col justify-start items-start">
-          <LocationPicker latlng={new LatLng(location.latitude, location.longitude)} readonly={true} />
+      <PopoverContent align="start" className="w-80 max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl p-0">
+        {popoverOpen && (
+          <LazyLocationPicker
+            latlng={{ lat: location.latitude, lng: location.longitude }}
+            readonly
+            className="h-52 rounded-none border-0 shadow-none"
+          />
+        )}
+        <div className="space-y-1 px-3 py-2.5">
+          {location.placeholder.trim() && <p className="wrap-anywhere text-sm font-medium">{displayText}</p>}
+          <p className="text-2xs tabular-nums text-muted-foreground">{getLocationCoordinatesText(location, 6)}</p>
         </div>
       </PopoverContent>
     </Popover>

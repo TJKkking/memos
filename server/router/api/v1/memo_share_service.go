@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	stderrors "errors"
 	"fmt"
 	"time"
 
@@ -14,11 +15,12 @@ import (
 	"github.com/pkg/errors"
 
 	v1pb "github.com/usememos/memos/proto/gen/api/v1"
+	"github.com/usememos/memos/server/access"
 	"github.com/usememos/memos/store"
 )
 
 // CreateMemoShare creates an opaque share link for a memo.
-// Only the memo's creator or an admin may call this.
+// Only the memo's creator may call this.
 func (s *APIV1Service) CreateMemoShare(ctx context.Context, request *v1pb.CreateMemoShareRequest) (*v1pb.MemoShare, error) {
 	user, err := s.fetchCurrentUser(ctx)
 	if err != nil {
@@ -39,10 +41,15 @@ func (s *APIV1Service) CreateMemoShare(ctx context.Context, request *v1pb.Create
 	if memo == nil {
 		return nil, status.Errorf(codes.NotFound, "memo not found")
 	}
-	if memo.CreatorID != user.ID && !isSuperUser(user) {
+	if memo.RowStatus != store.Normal {
+		return nil, status.Errorf(codes.FailedPrecondition, "only active memos can be shared")
+	}
+	if memo.CreatorID != user.ID {
 		return nil, status.Errorf(codes.PermissionDenied, "permission denied")
 	}
-
+	if memo.Visibility == store.SpaceAudience {
+		return nil, status.Errorf(codes.FailedPrecondition, "SPACE audience memos cannot be shared")
+	}
 	var expiresTs *int64
 	if request.MemoShare != nil && request.MemoShare.ExpireTime != nil {
 		ts := request.MemoShare.ExpireTime.AsTime().Unix()
@@ -53,21 +60,24 @@ func (s *APIV1Service) CreateMemoShare(ctx context.Context, request *v1pb.Create
 	}
 
 	// Generate a URL-safe token using shortuuid (base57-encoded UUID v4, 22 chars, 122-bit entropy).
+	policy := memoWritePolicy(user.ID, false)
+	policy.CreatingShare = true
 	ms, err := s.Store.CreateMemoShare(ctx, &store.MemoShare{
 		UID:       shortuuid.New(),
 		MemoID:    memo.ID,
 		CreatorID: user.ID,
 		ExpiresTs: expiresTs,
+		Policy:    policy,
 	})
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to create memo share")
+		return nil, mapMemoWriteError(err, "failed to create memo share")
 	}
 
 	return convertMemoShareFromStore(ms, memo.UID), nil
 }
 
 // ListMemoShares lists all share links for a memo.
-// Only the memo's creator or an admin may call this.
+// Only the memo's creator may call this.
 func (s *APIV1Service) ListMemoShares(ctx context.Context, request *v1pb.ListMemoSharesRequest) (*v1pb.ListMemoSharesResponse, error) {
 	user, err := s.fetchCurrentUser(ctx)
 	if err != nil {
@@ -88,8 +98,11 @@ func (s *APIV1Service) ListMemoShares(ctx context.Context, request *v1pb.ListMem
 	if memo == nil {
 		return nil, status.Errorf(codes.NotFound, "memo not found")
 	}
-	if memo.CreatorID != user.ID && !isSuperUser(user) {
+	if memo.CreatorID != user.ID {
 		return nil, status.Errorf(codes.PermissionDenied, "permission denied")
+	}
+	if err := s.requireAssignedMemoWritable(ctx, memo, user.ID); err != nil {
+		return nil, err
 	}
 
 	shares, err := s.Store.ListMemoShares(ctx, &store.FindMemoShare{MemoID: &memo.ID})
@@ -105,7 +118,7 @@ func (s *APIV1Service) ListMemoShares(ctx context.Context, request *v1pb.ListMem
 }
 
 // DeleteMemoShare revokes a share link.
-// Only the memo's creator or an admin may call this.
+// Only the memo's creator may call this.
 func (s *APIV1Service) DeleteMemoShare(ctx context.Context, request *v1pb.DeleteMemoShareRequest) (*emptypb.Empty, error) {
 	user, err := s.fetchCurrentUser(ctx)
 	if err != nil {
@@ -129,10 +142,9 @@ func (s *APIV1Service) DeleteMemoShare(ctx context.Context, request *v1pb.Delete
 	if memo == nil {
 		return nil, status.Errorf(codes.NotFound, "memo not found")
 	}
-	if memo.CreatorID != user.ID && !isSuperUser(user) {
+	if memo.CreatorID != user.ID {
 		return nil, status.Errorf(codes.PermissionDenied, "permission denied")
 	}
-
 	ms, err := s.Store.GetMemoShare(ctx, &store.FindMemoShare{UID: &shareToken})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get memo share")
@@ -141,16 +153,20 @@ func (s *APIV1Service) DeleteMemoShare(ctx context.Context, request *v1pb.Delete
 		return nil, status.Errorf(codes.NotFound, "memo share not found")
 	}
 
-	if err := s.Store.DeleteMemoShare(ctx, &store.DeleteMemoShare{UID: &shareToken}); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to delete memo share")
+	if err := s.Store.DeleteMemoShare(ctx, &store.DeleteMemoShare{
+		UID:    &shareToken,
+		MemoID: &memo.ID,
+		Policy: memoWritePolicy(user.ID, false),
+	}); err != nil {
+		return nil, mapMemoWriteError(err, "failed to delete memo share")
 	}
 	return &emptypb.Empty{}, nil
 }
 
-// GetMemoByShare resolves a share token to its memo. No authentication required.
+// GetSharedMemo resolves a share token to its memo. No authentication required.
 // Returns NOT_FOUND for invalid or expired tokens (no information leakage).
-func (s *APIV1Service) GetMemoByShare(ctx context.Context, request *v1pb.GetMemoByShareRequest) (*v1pb.Memo, error) {
-	ms, err := s.getActiveMemoShare(ctx, request.ShareId)
+func (s *APIV1Service) GetSharedMemo(ctx context.Context, request *v1pb.GetSharedMemoRequest) (*v1pb.Memo, error) {
+	ms, err := s.getActiveMemoShare(ctx, request.ShareToken)
 	if err != nil {
 		return nil, err
 	}
@@ -160,12 +176,16 @@ func (s *APIV1Service) GetMemoByShare(ctx context.Context, request *v1pb.GetMemo
 		return nil, status.Errorf(codes.Internal, "failed to get memo")
 	}
 	// Treat archived or missing memos the same as an invalid token — no information leakage.
-	if memo == nil || memo.RowStatus == store.Archived {
+	if memo == nil || memo.RowStatus != store.Normal || memo.Visibility == store.SpaceAudience {
 		return nil, status.Errorf(codes.NotFound, "not found")
+	}
+	readContext, err := s.buildMemoReadContext(ctx, memo, &ms.MemoID)
+	if err != nil || !access.CheckMemoReadContext(readContext).Allowed() {
+		return nil, status.Error(codes.NotFound, "not found")
 	}
 
 	reactions, err := s.Store.ListReactions(ctx, &store.FindReaction{
-		ContentID: stringPointer(fmt.Sprintf("%s%s", MemoNamePrefix, memo.UID)),
+		MemoID: &memo.ID,
 	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list reactions")
@@ -175,15 +195,17 @@ func (s *APIV1Service) GetMemoByShare(ctx context.Context, request *v1pb.GetMemo
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to list attachments")
 	}
-	relations, err := s.batchConvertMemoRelations(ctx, []*store.Memo{memo})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to load memo relations")
-	}
 
-	memoMessage, err := s.convertMemoFromStore(ctx, memo, reactions, attachments, relations[memo.ID])
+	memoMessage, err := s.convertMemoFromStore(ctx, memo, reactions, attachments, nil)
 	if err != nil {
+		if stderrors.Is(err, errMemoCreatorNotFound) {
+			return nil, status.Errorf(codes.NotFound, "not found")
+		}
 		return nil, errors.Wrap(err, "failed to convert memo")
 	}
+	// A share token grants access to this memo only, not to its surrounding
+	// conversation or relation graph.
+	memoMessage.Parent = nil
 	return memoMessage, nil
 }
 
@@ -201,10 +223,6 @@ func (s *APIV1Service) getActiveMemoShare(ctx context.Context, shareID string) (
 		return nil, status.Errorf(codes.NotFound, "not found")
 	}
 	return ms, nil
-}
-
-func stringPointer(s string) *string {
-	return &s
 }
 
 // convertMemoShareFromStore converts a store MemoShare to the proto MemoShare message.

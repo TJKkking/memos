@@ -1,39 +1,26 @@
-export type CalendarSize = "default" | "small";
+import type { MemoTimeBasis } from "@/contexts/ViewContext";
+
+/** Memo counts keyed by ISO date (`YYYY-MM-DD`). */
+export type CalendarData = Record<string, number>;
 
 export interface CalendarDayCell {
+  /** ISO date, `YYYY-MM-DD`. */
   date: string;
+  /** Day of month, the numeral drawn in the cell. */
   label: number;
   count: number;
+  /** False for the leading/trailing days that pad the grid out to whole weeks. */
   isCurrentMonth: boolean;
   isToday: boolean;
   isSelected: boolean;
-  isWeekend: boolean;
-}
-
-export interface CalendarDayRow {
-  days: CalendarDayCell[];
-}
-
-export interface CalendarMatrixResult {
-  weeks: CalendarDayRow[];
-  weekDays: string[];
-  maxCount: number;
 }
 
 export interface MonthCalendarProps {
+  /** Month to render, `YYYY-MM`. */
   month: string;
-  data: Record<string, number>;
-  maxCount: number;
-  size?: CalendarSize;
+  data: CalendarData;
+  /** ISO date of the day currently used as a filter, if any. */
+  selectedDate?: string;
   onClick?: (date: string) => void;
-  className?: string;
-  disableTooltips?: boolean;
-}
-
-export interface YearCalendarProps {
-  selectedYear: number;
-  data: Record<string, number>;
-  onYearChange: (year: number) => void;
-  onDateClick: (date: string) => void;
-  className?: string;
+  timeBasis?: MemoTimeBasis;
 }

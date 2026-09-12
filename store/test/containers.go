@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/docker/docker/api/types/container"
 	mysqldriver "github.com/go-sql-driver/mysql"
+	"github.com/moby/moby/api/types/container"
 	"github.com/pkg/errors"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/mysql"
@@ -31,8 +31,13 @@ const (
 	testPassword = "test"
 
 	// Memos container settings for migration testing.
-	MemosDockerImage   = "neosmemo/memos"
-	StableMemosVersion = "stable" // Always points to the latest stable release
+	MemosDockerImage = "neosmemo/memos"
+	// StableMemosVersion is the previous stable release upgrades are tested from.
+	// Pinned rather than tracking the floating "stable" tag so a Docker Hub retag
+	// cannot change what CI verifies. Bump this when a new stable ships.
+	// scripts/release_smoke_test.sh detects the previous release from Git tags
+	// instead, so the black-box tier still follows "stable" automatically.
+	StableMemosVersion = "0.30.0"
 
 	mysqlNetworkAlias    = "memos-mysql"
 	postgresNetworkAlias = "memos-postgres"
@@ -78,8 +83,18 @@ func requireTestNetwork(ctx context.Context) (*testcontainers.DockerNetwork, err
 	return nw, nil
 }
 
+func skipIfContainerProviderUnavailable(t *testing.T) {
+	t.Helper()
+	if os.Getenv("SKIP_CONTAINER_TESTS") == "1" {
+		t.Skip("skipping container-based test (SKIP_CONTAINER_TESTS=1)")
+	}
+	testcontainers.SkipIfProviderIsNotHealthy(t)
+}
+
 // GetMySQLDSN starts a MySQL container (if not already running) and creates a fresh database for this test.
 func GetMySQLDSN(t *testing.T) string {
+	skipIfContainerProviderUnavailable(t)
+
 	ctx := context.Background()
 
 	mysqlOnce.Do(func() {
@@ -89,7 +104,7 @@ func GetMySQLDSN(t *testing.T) string {
 		}
 
 		container, err := mysql.Run(ctx,
-			"mysql:8",
+			"mysql:8.4",
 			mysql.WithDatabase("init_db"),
 			mysql.WithUsername("root"),
 			mysql.WithPassword(testPassword),
@@ -180,6 +195,8 @@ func waitForDB(driver, dsn string, timeout time.Duration) error {
 
 // GetPostgresDSN starts a PostgreSQL container (if not already running) and creates a fresh database for this test.
 func GetPostgresDSN(t *testing.T) string {
+	skipIfContainerProviderUnavailable(t)
+
 	ctx := context.Background()
 
 	postgresOnce.Do(func() {

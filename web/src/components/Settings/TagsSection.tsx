@@ -1,29 +1,31 @@
 import { create } from "@bufbuild/protobuf";
 import { isEqual } from "lodash-es";
-import { PlusIcon, TrashIcon } from "lucide-react";
+import { EyeOffIcon, PaletteIcon, PlusIcon, TagIcon, TrashIcon } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useInstance } from "@/contexts/InstanceContext";
-import { useTagCounts } from "@/hooks/useUserQueries";
+import { Switch } from "@/components/ui/switch";
+import { useAuth } from "@/contexts/AuthContext";
+import { useTagCounts, useUpdateUserSetting } from "@/hooks/useUserQueries";
 import { colorToHex } from "@/lib/color";
-import { handleError } from "@/lib/error";
+import { buildUserSettingName } from "@/lib/resource-names";
 import { isValidTagPattern } from "@/lib/tag";
+import { cn } from "@/lib/utils";
 import {
-  InstanceSetting_Key,
-  InstanceSetting_TagMetadataSchema,
-  InstanceSetting_TagsSettingSchema,
-  InstanceSettingSchema,
-} from "@/types/proto/api/v1/instance_service_pb";
+  UserSetting_Key,
+  UserSetting_TagMetadataSchema,
+  UserSetting_TagsSettingSchema,
+  UserSettingSchema,
+} from "@/types/proto/api/v1/user_service_pb";
 import { ColorSchema } from "@/types/proto/google/type/color_pb";
 import { useTranslate } from "@/utils/i18n";
 import SettingGroup from "./SettingGroup";
+import { SettingList, SettingPanel } from "./SettingList";
 import SettingSection from "./SettingSection";
-import SettingTable from "./SettingTable";
 
-// Fallback to white when no color is stored.
-const tagColorToHex = (color?: { red?: number; green?: number; blue?: number }): string => colorToHex(color) ?? "#ffffff";
+const DEFAULT_TAG_COLOR = "#ffffff";
 
 // Converts a CSS hex string to a google.type.Color message.
 const hexToColor = (hex: string) =>
@@ -34,39 +36,37 @@ const hexToColor = (hex: string) =>
   });
 
 interface LocalTagMeta {
-  color: string;
+  color?: string;
   blur: boolean;
 }
 
+const toLocalTagMeta = (meta: {
+  backgroundColor?: { red?: number; green?: number; blue?: number };
+  blurContent: boolean;
+}): LocalTagMeta => ({
+  color: colorToHex(meta.backgroundColor),
+  blur: meta.blurContent,
+});
+
 const TagsSection = () => {
   const t = useTranslate();
-  const { tagsSetting: originalSetting, updateSetting, fetchSetting } = useInstance();
-  const { data: tagCounts = {} } = useTagCounts(false);
+  const { currentUser, userTagsSetting, refetchSettings } = useAuth();
+  const { mutateAsync: updateUserSetting } = useUpdateUserSetting();
+  const { data: tagCounts = {} } = useTagCounts(true);
+  const originalSetting = useMemo(() => userTagsSetting ?? create(UserSetting_TagsSettingSchema, {}), [userTagsSetting]);
 
   // Local state: map of tagName → { color, blur } for editing.
   const [localTags, setLocalTags] = useState<Record<string, LocalTagMeta>>(() =>
-    Object.fromEntries(
-      Object.entries(originalSetting.tags).map(([name, meta]) => [
-        name,
-        { color: tagColorToHex(meta.backgroundColor), blur: meta.blurContent },
-      ]),
-    ),
+    Object.fromEntries(Object.entries(originalSetting.tags).map(([name, meta]) => [name, toLocalTagMeta(meta)])),
   );
   const [newTagName, setNewTagName] = useState("");
-  const [newTagColor, setNewTagColor] = useState("#ffffff");
+  const [newTagColor, setNewTagColor] = useState<string | undefined>(undefined);
   const [newTagBlur, setNewTagBlur] = useState(false);
 
   // Sync local state when the fetched setting arrives (the fetch is async and
   // completes after mount, so localTags would be empty without this sync).
   useEffect(() => {
-    setLocalTags(
-      Object.fromEntries(
-        Object.entries(originalSetting.tags).map(([name, meta]) => [
-          name,
-          { color: tagColorToHex(meta.backgroundColor), blur: meta.blurContent },
-        ]),
-      ),
-    );
+    setLocalTags(Object.fromEntries(Object.entries(originalSetting.tags).map(([name, meta]) => [name, toLocalTagMeta(meta)])));
   }, [originalSetting.tags]);
 
   // All known tag names: union of saved entries and tags used in memos.
@@ -80,18 +80,12 @@ const TagsSection = () => {
     () =>
       Object.keys(localTags)
         .sort()
-        .map((name) => ({ name })),
-    [localTags],
+        .map((name) => ({ name, count: Object.hasOwn(tagCounts, name) ? tagCounts[name] : 0 })),
+    [localTags, tagCounts],
   );
 
   const originalMetaMap = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(originalSetting.tags).map(([name, meta]) => [
-          name,
-          { color: tagColorToHex(meta.backgroundColor), blur: meta.blurContent },
-        ]),
-      ),
+    () => Object.fromEntries(Object.entries(originalSetting.tags).map(([name, meta]) => [name, toLocalTagMeta(meta)])),
     [originalSetting.tags],
   );
   const hasChanges = !isEqual(localTags, originalMetaMap);
@@ -102,6 +96,10 @@ const TagsSection = () => {
 
   const handleBlurChange = (tagName: string, blur: boolean) => {
     setLocalTags((prev) => ({ ...prev, [tagName]: { ...prev[tagName], blur } }));
+  };
+
+  const handleClearColor = (tagName: string) => {
+    setLocalTags((prev) => ({ ...prev, [tagName]: { ...prev[tagName], color: undefined } }));
   };
 
   const handleRemoveTag = (tagName: string) => {
@@ -115,7 +113,7 @@ const TagsSection = () => {
   const handleAddTag = () => {
     const name = newTagName.trim();
     if (!name) return;
-    if (localTags[name] !== undefined) {
+    if (Object.hasOwn(localTags, name)) {
       toast.error(t("setting.tags.tag-already-exists"));
       return;
     }
@@ -125,127 +123,162 @@ const TagsSection = () => {
     }
     setLocalTags((prev) => ({ ...prev, [name]: { color: newTagColor, blur: newTagBlur } }));
     setNewTagName("");
-    setNewTagColor("#ffffff");
+    setNewTagColor(undefined);
     setNewTagBlur(false);
   };
 
   const handleSave = async () => {
-    try {
-      const tags = Object.fromEntries(
-        Object.entries(localTags).map(([name, meta]) => [
-          name,
-          create(InstanceSetting_TagMetadataSchema, { backgroundColor: hexToColor(meta.color), blurContent: meta.blur }),
-        ]),
-      );
-      await updateSetting(
-        create(InstanceSettingSchema, {
-          name: `instance/settings/${InstanceSetting_Key[InstanceSetting_Key.TAGS]}`,
-          value: {
-            case: "tagsSetting",
-            value: create(InstanceSetting_TagsSettingSchema, { tags }),
-          },
+    const tags = Object.fromEntries(
+      Object.entries(localTags).map(([name, meta]) => [
+        name,
+        create(UserSetting_TagMetadataSchema, {
+          blurContent: meta.blur,
+          ...(meta.color ? { backgroundColor: hexToColor(meta.color) } : {}),
         }),
-      );
-      await fetchSetting(InstanceSetting_Key.TAGS);
-      toast.success(t("message.update-succeed"));
-    } catch (error: unknown) {
-      handleError(error, toast.error, { context: "Update tags setting" });
+      ]),
+    );
+
+    if (!currentUser) {
+      return;
     }
+
+    await updateUserSetting({
+      setting: create(UserSettingSchema, {
+        name: buildUserSettingName(currentUser.name, UserSetting_Key.TAGS),
+        value: {
+          case: "tagsSetting",
+          value: create(UserSetting_TagsSettingSchema, { tags }),
+        },
+      }),
+      updateMask: ["tags"],
+    });
+    await refetchSettings();
   };
 
   return (
     <SettingSection title={t("setting.tags.label")}>
       <SettingGroup title={t("setting.tags.title")} description={t("setting.tags.description")}>
-        <SettingTable
-          columns={[
-            {
-              key: "name",
-              header: t("setting.tags.tag-name"),
-              render: (_, row: { name: string }) => <span className="font-mono text-foreground">{row.name}</span>,
-            },
-            {
-              key: "color",
-              header: t("setting.tags.background-color"),
-              render: (_, row: { name: string }) => (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="color"
-                    className="w-8 h-8 cursor-pointer rounded border border-border bg-transparent p-0.5"
-                    value={localTags[row.name].color}
-                    onChange={(e) => handleColorChange(row.name, e.target.value)}
-                  />
-                </div>
-              ),
-            },
-            {
-              key: "blur",
-              header: t("setting.tags.blur-content"),
-              render: (_, row: { name: string }) => (
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 cursor-pointer"
-                  checked={localTags[row.name].blur}
-                  onChange={(e) => handleBlurChange(row.name, e.target.checked)}
-                />
-              ),
-            },
-            {
-              key: "actions",
-              header: "",
-              className: "text-right",
-              render: (_, row: { name: string }) => (
-                <Button variant="ghost" size="sm" onClick={() => handleRemoveTag(row.name)}>
-                  <TrashIcon className="w-4 h-4 text-destructive" />
-                </Button>
-              ),
-            },
-          ]}
-          data={configuredEntries}
-          emptyMessage={t("setting.tags.no-tags-configured")}
-          getRowKey={(row) => row.name}
-        />
+        <SettingPanel footer={<span className="text-xs text-muted-foreground">{t("setting.tags.tag-pattern-hint")}</span>}>
+          <div className="flex flex-col gap-3 px-3 py-3">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+                <PlusIcon className="size-3.5" />
+                <span>{t("setting.tags.add-rule")}</span>
+              </div>
+              <Button variant="outline" onClick={handleAddTag} disabled={!newTagName.trim()}>
+                <PlusIcon className="w-4 h-4 mr-1.5" />
+                {t("common.add")}
+              </Button>
+            </div>
 
-        <div className="flex items-center gap-2 pt-1">
-          <Input
-            className="w-48"
-            placeholder={t("setting.tags.tag-name-placeholder")}
-            value={newTagName}
-            onChange={(e) => setNewTagName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
-            list="known-tags"
-          />
-          <datalist id="known-tags">
-            {allKnownTags
-              .filter((tag) => !localTags[tag])
-              .map((tag) => (
-                <option key={tag} value={tag} />
-              ))}
-          </datalist>
-          <input
-            type="color"
-            className="w-8 h-8 cursor-pointer rounded border border-border bg-transparent p-0.5"
-            value={newTagColor}
-            onChange={(e) => setNewTagColor(e.target.value)}
-          />
-          <label className="flex items-center gap-1.5 text-sm text-muted-foreground">
-            <input
-              type="checkbox"
-              className="w-4 h-4 cursor-pointer"
-              checked={newTagBlur}
-              onChange={(e) => setNewTagBlur(e.target.checked)}
-            />
-            {t("setting.tags.blur-content")}
-          </label>
-          <Button variant="outline" onClick={handleAddTag} disabled={!newTagName.trim()}>
-            <PlusIcon className="w-4 h-4 mr-1.5" />
-            {t("common.add")}
-          </Button>
+            <div className="grid gap-2 lg:grid-cols-[minmax(16rem,1fr)_auto_auto] lg:items-center">
+              <div className="min-w-0">
+                <Input
+                  className="font-mono"
+                  placeholder={t("setting.tags.tag-name-placeholder")}
+                  value={newTagName}
+                  onChange={(e) => setNewTagName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
+                  list="known-tags"
+                />
+                <datalist id="known-tags">
+                  {allKnownTags
+                    .filter((tag) => !Object.hasOwn(localTags, tag))
+                    .map((tag) => (
+                      <option key={tag} value={tag} />
+                    ))}
+                </datalist>
+              </div>
+
+              <div className="flex h-8 items-center gap-2 rounded-md border border-border bg-background px-2 text-sm text-muted-foreground">
+                <PaletteIcon className="size-4" />
+                <span>{t("setting.tags.background-color")}</span>
+                <input
+                  type="color"
+                  className="size-6 cursor-pointer rounded border border-border bg-transparent p-0.5"
+                  value={newTagColor ?? DEFAULT_TAG_COLOR}
+                  onChange={(e) => setNewTagColor(e.target.value)}
+                  aria-label={t("setting.tags.background-color")}
+                />
+                <Button variant="ghost" size="sm" onClick={() => setNewTagColor(undefined)} disabled={!newTagColor} className="h-6 px-1.5">
+                  {t("common.clear")}
+                </Button>
+              </div>
+
+              <label className="flex h-8 items-center gap-2 rounded-md border border-border bg-background px-2 text-sm text-muted-foreground">
+                <EyeOffIcon className="size-4" />
+                <span>{t("setting.tags.blur-content")}</span>
+                <Switch checked={newTagBlur} onCheckedChange={setNewTagBlur} />
+              </label>
+            </div>
+          </div>
+        </SettingPanel>
+
+        <div className="flex items-center justify-between gap-3">
+          <h4 className="text-sm font-medium text-muted-foreground">{t("setting.tags.configured-rules")}</h4>
+          <Badge variant="outline" className="rounded-md px-2 py-0 text-xs font-normal">
+            {configuredEntries.length}
+          </Badge>
         </div>
-        <p className="text-xs text-muted-foreground mt-1">{t("setting.tags.tag-pattern-hint")}</p>
+
+        <SettingList>
+          {configuredEntries.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 px-4 py-8 text-center">
+              <TagIcon className="size-5 text-muted-foreground" />
+              <p className="text-sm text-muted-foreground">{t("setting.tags.no-tags-configured")}</p>
+            </div>
+          ) : (
+            <>
+              {configuredEntries.map((row) => (
+                <div key={row.name} className="grid gap-3 px-3 py-3 lg:grid-cols-[minmax(12rem,1fr)_auto_auto_auto] lg:items-center">
+                  <div className="min-w-0">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <TagIcon className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="truncate font-mono text-sm text-foreground">{row.name}</span>
+                    </div>
+                    <div className="mt-1 flex flex-wrap items-center gap-2 pl-6 text-xs text-muted-foreground">
+                      <span>{t("setting.tags.matching-rule")}</span>
+                      <span className="text-border">/</span>
+                      <span>{t("setting.tags.used-count", { count: row.count })}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span
+                      className={cn("size-5 rounded-md border border-border", !localTags[row.name].color && "bg-background")}
+                      style={{ backgroundColor: localTags[row.name].color ?? DEFAULT_TAG_COLOR }}
+                      aria-hidden
+                    />
+                    <input
+                      type="color"
+                      className="size-8 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
+                      value={localTags[row.name].color ?? DEFAULT_TAG_COLOR}
+                      onChange={(e) => handleColorChange(row.name, e.target.value)}
+                      aria-label={t("setting.tags.background-color")}
+                    />
+                    <Button variant="ghost" size="sm" onClick={() => handleClearColor(row.name)} disabled={!localTags[row.name].color}>
+                      {localTags[row.name].color ?? t("setting.tags.default-color")}
+                    </Button>
+                  </div>
+
+                  <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <EyeOffIcon className="size-4" />
+                    {t("setting.tags.blur-content")}
+                    <Switch checked={localTags[row.name].blur} onCheckedChange={(checked) => handleBlurChange(row.name, checked)} />
+                  </label>
+
+                  <Button variant="ghost" size="sm" onClick={() => handleRemoveTag(row.name)} aria-label={t("common.delete")}>
+                    <TrashIcon className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+            </>
+          )}
+        </SettingList>
       </SettingGroup>
 
       <div className="w-full flex justify-end">
-        <Button disabled={!hasChanges} onClick={handleSave}>
+        <Button disabled={!hasChanges || !currentUser} onClick={handleSave}>
           {t("common.save")}
         </Button>
       </div>

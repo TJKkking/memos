@@ -23,7 +23,6 @@
     "archive": "Lưu trữ",
     "archived": "Đã lưu trữ",
     "attachments": "Tệp đính kèm",
-    "auto-expand": "Mở rộng tự động",
     "avatar": "Ảnh đại diện",
     "basic": "Cơ bản",
     "beta": "Beta",
@@ -65,6 +64,7 @@
     "last-updated-at": "Cập nhật lần cuối",
     "learn-more": "Tìm hiểu thêm",
     "link": "Liên kết",
+    "manage": "Quản lý",
     "map": "Bản đồ",
     "mark": "Đánh dấu",
     "memo": "Ghi chú",
@@ -95,8 +95,6 @@
     "select": "Chọn",
     "settings": "Cài đặt",
     "share": "Chia sẻ",
-    "shortcut-filter": "Bộ lọc phím tắt",
-    "shortcuts": "Phím tắt",
     "sign-in": "Đăng nhập",
     "sign-in-with": "Đăng nhập bằng {{provider}}",
     "sign-out": "Đăng xuất",
@@ -114,7 +112,11 @@
     "username": "Tên người dùng",
     "version": "Phiên bản",
     "visibility": "Quyền xem",
+    "views": "Các chế độ xem",
     "yourself": "Bản thân"
+  },
+  "locale-picker": {
+    "no-language-feedback": "Không tìm thấy ngôn ngữ? Gửi phản hồi"
   },
   "editor": {
     "add-your-comment-here": "Thêm bình luận của bạn tại đây...",
@@ -123,8 +125,36 @@
     "focus-mode": "Chế độ tập trung",
     "no-changes-detected": "Không phát hiện thay đổi",
     "save": "Lưu",
-    "saving": "Đang lưu...",
-    "slash-commands": "Nhập `/` để sử dụng lệnh"
+    "insert-menu": {
+      "add-location": "Thêm vị trí",
+      "link-memo": "Liên kết bản ghi nhớ",
+      "upload-file": "Tải tập tin lên"
+    },
+    "audio-recorder": {
+      "attachment-label": "Ghi âm",
+      "attachment-label-with-time": "Ghi âm {{time}}",
+      "discard": "Loại bỏ",
+      "error": "Không có micrô",
+      "error-description": "Hãy thử lại sau khi kiểm tra quyền truy cập micrô cho trang web này.",
+      "idle-description": "Bắt đầu ghi để thêm bản ghi âm dưới dạng tệp đính kèm.",
+      "keep": "Tiếp tục ghi âm",
+      "pause-recording": "Tạm dừng ghi âm",
+      "play-recording": "Phát bản ghi âm",
+      "ready": "Đã sẵn sàng ghi âm",
+      "ready-description": "Xem trước clip, sau đó giữ nó dưới dạng tệp đính kèm âm thanh hoặc loại bỏ nó.",
+      "record-again": "Ghi lại",
+      "recording": "Ghi âm thanh",
+      "recording-description": "Ghi lại tệp đính kèm âm thanh nhanh chóng. Độ dài hiện tại: {{duration}}",
+      "requesting": "Đang yêu cầu quyền truy cập...",
+      "requesting-permission": "Yêu cầu quyền truy cập micrô",
+      "requesting-permission-description": "Cho phép truy cập micrô trong trình duyệt của bạn để bắt đầu ghi âm.",
+      "start": "Bắt đầu ghi",
+      "stop": "Dừng ghi",
+      "title": "Máy ghi âm",
+      "trigger": "Ghi âm thanh",
+      "unsupported": "Ghi âm không được hỗ trợ",
+      "unsupported-description": "Trình duyệt này không thể ghi lại âm thanh từ trình soạn thảo ghi nhớ."
+    }
   },
   "inbox": {
     "failed-to-load": "Không thể tải mục hộp thư",
@@ -159,8 +189,12 @@
     "filters": {
       "has-code": "cóMã",
       "has-link": "cóLiênKết",
-      "has-task-list": "cóDanhSáchViệc"
+      "has-location": "có vị trí",
+      "has-task-list": "cóDanhSáchViệc",
+      "label": "Bộ lọc"
     },
+    "compact-mode": "Chế độ thu gọn",
+    "link-preview": "Xem trước liên kết",
     "links": "Liên kết",
     "load-more": "Tải thêm",
     "no-archived-memos": "Không có ghi chú nào được lưu trữ.",
@@ -176,6 +210,32 @@
       "private": "Riêng tư",
       "protected": "Không gian làm việc",
       "public": "Công khai"
+    },
+    "outline": "phác thảo",
+    "share": {
+      "active-links": "Liên kết chia sẻ đang hoạt động",
+      "copied": "Đã sao chép!",
+      "copy": "Sao chép liên kết",
+      "create-failed": "Không tạo được liên kết chia sẻ",
+      "create-link": "Tạo liên kết mới",
+      "creating": "Đang tạo…",
+      "expiry-1-day": "1 ngày",
+      "expiry-30-days": "30 ngày",
+      "expiry-7-days": "7 ngày",
+      "expiry-label": "Hết hạn",
+      "expiry-never": "không bao giờ",
+      "expires-on": "Hết hạn {{date}}",
+      "invalid-link": "Liên kết này không hợp lệ hoặc đã hết hạn.",
+      "never-expires": "Không bao giờ hết hạn",
+      "no-links": "Chưa có link chia sẻ. Tạo một cái bên dưới.",
+      "open-panel": "Quản lý liên kết chia sẻ",
+      "revoke": "Thu hồi",
+      "revoke-failed": "Không thể thu hồi liên kết",
+      "revoked": "Liên kết chia sẻ đã bị thu hồi",
+      "section-label": "Chia sẻ",
+      "share": "Chia sẻ",
+      "shared-by": "Được chia sẻ bởi {{creator}}",
+      "title": "Chia sẻ bản ghi nhớ này"
     }
   },
   "message": {
@@ -196,8 +256,7 @@
     "restored-successfully": "Khôi phục thành công",
     "succeed-copy-content": "Đã sao chép nội dung thành công.",
     "succeed-copy-link": "Sao chép liên kết thành công.",
-    "update-succeed": "Cập nhật thành công",
-    "user-not-found": "Không tìm thấy người dùng"
+    "update-succeed": "Cập nhật thành công"
   },
   "reference": {
     "add-references": "Thêm tham chiếu",
@@ -261,7 +320,8 @@
       "restore-success": "{{username}} đã được khôi phục thành công",
       "user": "Người dùng",
       "label": "Thành viên",
-      "list-title": "Danh sách thành viên"
+      "list-title": "Danh sách thành viên",
+      "no-members-found": "Không tìm thấy thành viên nào"
     },
     "my-account": {
       "label": "Tài khoản của tôi"
@@ -272,9 +332,9 @@
       "theme": "Giao diện",
       "label": "Tùy chỉnh"
     },
-    "shortcut": {
-      "delete-confirm": "Bạn có chắc chắn muốn xóa phím tắt `{{title}}`?",
-      "delete-success": "Đã xóa phím tắt `{{title}}` thành công"
+    "memo-view": {
+      "delete-confirm": "Bạn có chắc chắn muốn xóa chế độ xem `{{title}}`?",
+      "delete-success": "Đã xóa chế độ xem `{{title}}` thành công"
     },
     "sso": {
       "authorization-endpoint": "Điểm cuối xác thực",
@@ -316,7 +376,6 @@
       "path": "Đường dẫn lưu trữ",
       "path-description": "Bạn có thể sử dụng các biến động như trong lưu trữ cục bộ, ví dụ {filename}",
       "path-placeholder": "đường/dẫn/tùy-chỉnh",
-      "presign-placeholder": "URL ký trước, tùy chọn",
       "region": "Khu vực",
       "region-placeholder": "Tên khu vực",
       "s3-compatible-url": "URL tương thích S3",
@@ -383,7 +442,8 @@
       },
       "description": "Danh sách tất cả token truy cập cho tài khoản của bạn.",
       "title": "Token truy cập",
-      "token": "Token"
+      "token": "Token",
+      "no-tokens-found": "Không tìm thấy mã thông báo truy cập"
     },
     "account": {
       "change-password": "Đổi mật khẩu",
@@ -415,7 +475,8 @@
       "enable-memo-location": "Bật vị trí ghi chú",
       "reactions": "Phản ứng",
       "title": "Cài đặt liên quan đến ghi chú",
-      "label": "Ghi chú"
+      "label": "Ghi chú",
+      "reactions-required": "Danh sách phản ứng không được trống"
     },
     "webhook": {
       "create-dialog": {
@@ -436,6 +497,20 @@
       "title": "Webhook",
       "url": "Url",
       "label": "Webhook"
+    },
+    "tags": {
+      "label": "Thẻ",
+      "title": "Siêu dữ liệu thẻ",
+      "description": "Gán màu hiển thị tùy chọn cho toàn bộ thẻ hoặc làm mờ nội dung ghi nhớ phù hợp. Tên thẻ được coi là mẫu biểu thức chính quy được neo.",
+      "background-color": "Màu nền",
+      "blur-content": "Làm mờ nội dung",
+      "no-tags-configured": "Không có siêu dữ liệu thẻ nào được định cấu hình.",
+      "tag-name": "Tên thẻ",
+      "tag-name-placeholder": "ví dụ: công việc hoặc project/.*",
+      "tag-already-exists": "Thẻ đã tồn tại.",
+      "tag-pattern-hint": "Tên thẻ hoặc mẫu biểu thức chính quy (ví dụ: project/.* khớp với tất cả các thẻ project/)",
+      "invalid-regex": "Mẫu biểu thức chính quy không hợp lệ hoặc không an toàn.",
+      "using-default-color": "Sử dụng màu mặc định."
     }
   },
   "tag": {
@@ -461,5 +536,10 @@
     "select-visibility": "Chọn quyền xem",
     "tags": "Thẻ",
     "upload-attachment": "Tải lên tệp đính kèm"
+  },
+  "live-update": {
+    "connected": "Cập nhật trực tiếp đang hoạt động",
+    "connecting": "Đang kết nối với thông tin cập nhật trực tiếp...",
+    "disconnected": "Cập nhật trực tiếp không có sẵn"
   }
 }

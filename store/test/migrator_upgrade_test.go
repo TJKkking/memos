@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -20,9 +19,7 @@ func TestMigrationFromV0262PreservesLegacyData(t *testing.T) {
 	if testing.Short() {
 		t.Skip("skipping container-based upgrade test in short mode")
 	}
-	if os.Getenv("SKIP_CONTAINER_TESTS") == "1" {
-		t.Skip("skipping container-based test (SKIP_CONTAINER_TESTS=1)")
-	}
+	skipIfContainerProviderUnavailable(t)
 
 	ctx := context.Background()
 	driver := getDriverFromEnv()
@@ -122,8 +119,13 @@ func TestMigrationFromV0262PreservesLegacyData(t *testing.T) {
 
 func prepareV0262MigrationTest(t *testing.T, driver string) (MemosContainerConfig, string) {
 	t.Helper()
+	return prepareUpgradeFixture(t, driver, "0.26.2")
+}
 
-	const version = "0.26.2"
+// prepareUpgradeFixture returns the container config needed to bootstrap a real
+// schema for the given Memos version, plus the DSN the host uses to reach it.
+func prepareUpgradeFixture(t *testing.T, driver, version string) (MemosContainerConfig, string) {
+	t.Helper()
 
 	switch driver {
 	case "sqlite":
